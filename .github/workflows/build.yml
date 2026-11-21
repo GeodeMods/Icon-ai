@@ -19,7 +19,7 @@ jobs:
           bindings: geode-sdk/bindings
           bindings-ref: main
           combine: true
-          sdk: nightly
+          sdk: v4.0.1.
           target: Android64
 
   package:
