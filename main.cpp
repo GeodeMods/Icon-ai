@@ -75,11 +75,12 @@ static CCNode* makeIconNode(IconSpec const& spec, float scale) {
     return draw;
 }
 
-class IconAIPopup : public Popup<> {
+class IconAIPopup : public geode::Popup {
 protected:
     TextInput* m_input = nullptr;
     CCLabelBMFont* m_chat = nullptr;
     CCNode* m_previewHolder = nullptr;
+    CCMenu* m_menu = nullptr;
     CCMenuItemSpriteExtra* m_sureBtn = nullptr;
     CCMenuItemSpriteExtra* m_noBtn = nullptr;
     CCMenu* m_historyMenu = nullptr;
@@ -87,9 +88,16 @@ protected:
     IconSpec m_current;
     bool m_hasCurrent = false;
 
-    bool setup() override {
+    bool init() {
+        if (!Popup::init(360.f, 260.f)) return false;
+
         this->setTitle("Icon Maker");
         auto size = m_mainLayer->getContentSize();
+
+        m_menu = CCMenu::create();
+        m_menu->setPosition({0.f, 0.f});
+        m_menu->setContentSize(size);
+        m_mainLayer->addChild(m_menu, 10);
 
         m_chat = CCLabelBMFont::create("Describe the icon you want!", "bigFont.fnt");
         m_chat->setScale(0.45f);
@@ -105,7 +113,7 @@ protected:
             this, menu_selector(IconAIPopup::onGenerate)
         );
         genBtn->setPosition({size.width / 2 + 125.f, size.height - 75.f});
-        m_buttonMenu->addChild(genBtn);
+        m_menu->addChild(genBtn);
 
         m_previewHolder = CCNode::create();
         m_previewHolder->setPosition({size.width / 2, size.height - 125.f});
@@ -117,7 +125,7 @@ protected:
         );
         m_sureBtn->setPosition({size.width / 2 - 70.f, size.height - 170.f});
         m_sureBtn->setVisible(false);
-        m_buttonMenu->addChild(m_sureBtn);
+        m_menu->addChild(m_sureBtn);
 
         m_noBtn = CCMenuItemSpriteExtra::create(
             ButtonSprite::create("No, retry", 90, true, "goldFont.fnt", "GJ_button_06.png", 30.f, 0.6f),
@@ -125,7 +133,7 @@ protected:
         );
         m_noBtn->setPosition({size.width / 2 + 60.f, size.height - 170.f});
         m_noBtn->setVisible(false);
-        m_buttonMenu->addChild(m_noBtn);
+        m_menu->addChild(m_noBtn);
 
         auto histLabel = CCLabelBMFont::create("Your icons (tap one to use it)", "chatFont.fnt");
         histLabel->setScale(0.7f);
@@ -135,7 +143,7 @@ protected:
         m_historyMenu = CCMenu::create();
         m_historyMenu->setPosition({0.f, 0.f});
         m_historyMenu->setContentSize(size);
-        m_mainLayer->addChild(m_historyMenu);
+        m_mainLayer->addChild(m_historyMenu, 10);
 
         return true;
     }
@@ -216,7 +224,7 @@ protected:
 public:
     static IconAIPopup* create() {
         auto ret = new IconAIPopup();
-        if (ret->initAnchored(360.f, 260.f)) {
+        if (ret->init()) {
             ret->autorelease();
             return ret;
         }
